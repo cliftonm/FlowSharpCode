@@ -335,16 +335,20 @@ namespace FlowSharpCode
             parameters.GenerateInMemory = false;
 
             parameters.ReferencedAssemblies.Add("System.dll");
+            parameters.ReferencedAssemblies.Add("System.Data.dll");
             parameters.ReferencedAssemblies.Add("System.Core.dll");
             parameters.ReferencedAssemblies.Add("System.Net.dll");
             parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
+            parameters.ReferencedAssemblies.Add("System.Xml.dll");
+            parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
             parameters.ReferencedAssemblies.Add("Clifton.Core.dll");
 
             if (provider.Supports(GeneratorSupport.EntryPointMethod))
             {
                 // Specify the class that contains 
                 // the main method of the executable.
-                parameters.MainClass = "WebServerDemo.Program";
+                // parameters.MainClass = "WebServerDemo.Program";
+                parameters.MainClass = "App.Program";
             }
 
             List<string> sourceList = new List<string>();
@@ -390,7 +394,7 @@ namespace FlowSharpCode
             if (!results.Errors.HasErrors)
             {
                 ProcessStartInfo psi = new ProcessStartInfo("foo.exe");
-                psi.UseShellExecute = false;
+                psi.UseShellExecute = true;     // must be true if we want to keep a console window open.
                 Process p = Process.Start("foo.exe");
                 //p.WaitForExit();
                 //p.Close();
