@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Microsoft.CSharp;
 
 using FlowSharpLib;
+using FlowSharpCodeShapeInterfaces;
 
 namespace FlowSharpCode
 {
@@ -325,61 +326,22 @@ namespace FlowSharpCode
         }
 
         protected void Compile()
-        { 
-            CSharpCodeProvider provider = new CSharpCodeProvider();
-            CompilerParameters parameters = new CompilerParameters();
+        {
+            List<GraphicElement> compiledAssemblies = new List<GraphicElement>();
 
-            parameters.GenerateExecutable = true;
-            parameters.OutputAssembly = "foo.exe";
-            parameters.IncludeDebugInformation = true;
-            parameters.GenerateInMemory = false;
+            bool ok = CompileAssemblies(compiledAssemblies);
 
-            parameters.ReferencedAssemblies.Add("System.dll");
-            parameters.ReferencedAssemblies.Add("System.Data.dll");
-            parameters.ReferencedAssemblies.Add("System.Core.dll");
-            parameters.ReferencedAssemblies.Add("System.Net.dll");
-            parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
-            parameters.ReferencedAssemblies.Add("System.Xml.dll");
-            parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
-            parameters.ReferencedAssemblies.Add("Clifton.Core.dll");
+            if (!ok) return;
 
-            if (provider.Supports(GeneratorSupport.EntryPointMethod))
-            {
-                // Specify the class that contains 
-                // the main method of the executable.
-                // parameters.MainClass = "WebServerDemo.Program";
-                parameters.MainClass = "App.Program";
-            }
+            List<string> refs = new List<string>();
+            List<string> sources = new List<string>();
+            List<GraphicElement> rootSourceShapes = GetSources();
+            rootSourceShapes.ForEach(root => GetReferencedAssemblies(root).ForEach(refassy => refs.Add(((IAssemblyBox)refassy).Filename)));
 
-            List<string> sourceList = new List<string>();
+            // TODO: Better Linq!
+            rootSourceShapes.Where(root => !String.IsNullOrEmpty(GetCode(root))).ForEach(root => sources.Add(GetCode(root)));
 
-            foreach (GraphicElement el in canvasController.Elements)
-            {
-                string code;
-
-                if (el.Json.TryGetValue("Code", out code))
-                {
-                    sourceList.Add(code);
-                }
-            }
-
-            results = provider.CompileAssemblyFromSource(parameters, sourceList.ToArray());
-
-            if (results.Errors.HasErrors)
-            {
-                StringBuilder sb = new StringBuilder();
-
-                foreach (CompilerError error in results.Errors)
-                {
-                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
-                }
-
-                MessageBox.Show(sb.ToString(), "Errors", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            // Do NOT call:
-            // results.CompiledAssembly;
-            // This will load the assembly into memory and prevent further compilation.
+            Compile("foo.exe", sources, refs, true);
         }
 
         private void MnuRun_Click(object sender, EventArgs e)
@@ -407,6 +369,164 @@ namespace FlowSharpCode
         protected void UpdateCaption()
         {
             form.Text = "FlowSharpCode" + (String.IsNullOrEmpty(filename) ? "" : " - ") + filename;
+        }
+
+        protected bool CompileAssemblies(List<GraphicElement> compiledAssemblies)
+        {
+            bool ok = true;
+
+            // 1. First compile AssemblyBox shapes into their assemblies.  This is a recursive process.
+            foreach (GraphicElement elAssy in canvasController.Elements.Where(el => el is IAssemblyBox))
+            {
+                CompileAssembly(elAssy, compiledAssemblies);
+            }
+
+            return ok;
+        }
+
+        protected string CompileAssembly(GraphicElement elAssy, List<GraphicElement> compiledAssemblies)
+        {
+            string assyFilename = ((IAssemblyBox)elAssy).Filename;
+
+            if (!compiledAssemblies.Contains(elAssy))
+            {
+                // Add now, so we don't accidentally recurse infinitely.
+                compiledAssemblies.Add(elAssy);
+
+                List<GraphicElement> referencedAssemblies = GetReferencedAssemblies(elAssy);
+                List<string> refs = new List<string>();
+
+                // Recurse into referenced assemblies that need compiling first.
+                foreach (GraphicElement el in referencedAssemblies)
+                {
+                    string refAssy = CompileAssembly(el, compiledAssemblies);
+                    refs.Add(refAssy);
+                }
+
+                List<string> sources = GetSources(elAssy);
+                Compile(assyFilename, sources, refs);
+            }
+
+            return assyFilename;
+        }
+
+        protected List<GraphicElement> GetReferencedAssemblies(GraphicElement elAssy)
+        {
+            List<GraphicElement> refs = new List<GraphicElement>();
+
+            // TODO: Qualify EndConnectedShape as being IAssemblyBox
+            elAssy.Connections.Where(c => ((Connector)c.ToElement).EndCap == AvailableLineCap.Arrow).ForEach(c =>
+            {
+                // Connector endpoint will reference ourselves, so exclude.
+                if (((Connector)c.ToElement).EndConnectedShape != elAssy)
+                {
+                    GraphicElement toAssy = ((Connector)c.ToElement).EndConnectedShape;
+                    refs.Add(toAssy);
+                }
+            });
+
+            // TODO: Qualify EndConnectedShape as being IAssemblyBox
+            elAssy.Connections.Where(c => ((Connector)c.ToElement).StartCap == AvailableLineCap.Arrow).ForEach(c =>
+            {
+                // Connector endpoint will reference ourselves, so exclude.
+                if (((Connector)c.ToElement).StartConnectedShape != elAssy)
+                {
+                    GraphicElement toAssy = ((Connector)c.ToElement).StartConnectedShape;
+                    refs.Add(toAssy);
+                }
+            });
+
+            return refs;
+        }
+
+        protected bool Compile(string assyFilename, List<string> sources, List<string> refs, bool generateExecutable = false)
+        {
+            bool ok = false;
+
+            CSharpCodeProvider provider = new CSharpCodeProvider();
+            CompilerParameters parameters = new CompilerParameters();
+
+            parameters.IncludeDebugInformation = true;
+            parameters.GenerateInMemory = false;
+            parameters.GenerateExecutable = generateExecutable;
+
+            parameters.ReferencedAssemblies.Add("System.dll");
+            parameters.ReferencedAssemblies.Add("System.Data.dll");
+            parameters.ReferencedAssemblies.Add("System.Core.dll");
+            parameters.ReferencedAssemblies.Add("System.Net.dll");
+            parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
+            parameters.ReferencedAssemblies.Add("System.Xml.dll");
+            parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
+            parameters.ReferencedAssemblies.Add("Clifton.Core.dll");
+            parameters.ReferencedAssemblies.AddRange(refs.ToArray());
+            parameters.OutputAssembly = assyFilename;
+
+            if (generateExecutable)
+            {
+                parameters.MainClass = "App.Program";
+            }
+
+            results = provider.CompileAssemblyFromSource(parameters, sources.ToArray());
+            ok = !results.Errors.HasErrors;
+
+            if (results.Errors.HasErrors)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                foreach (CompilerError error in results.Errors)
+                {
+                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
+                }
+
+                MessageBox.Show(sb.ToString(), assyFilename, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            return ok;
+        }
+
+        /// <summary>
+        /// Returns only top level sources - those not contained within AssemblyBox shapes.
+        /// </summary>
+        protected List<GraphicElement> GetSources()
+        {
+            List<GraphicElement> sourceList = new List<GraphicElement>();
+
+            foreach (GraphicElement srcEl in canvasController.Elements.Where(
+                srcEl => !ContainedIn<IAssemblyBox>(srcEl) &&
+                !(srcEl is IFileBox)))
+            {
+                sourceList.Add(srcEl);
+            }
+
+            return sourceList;
+        }
+
+        protected bool ContainedIn<T>(GraphicElement child)
+        {
+            return canvasController.Elements.Any(el => el is T && el.DisplayRectangle.Contains(child.DisplayRectangle));
+        }
+
+        /// <summary>
+        /// Returns sources contained in an element (ie., AssemblyBox shape).
+        /// </summary>
+        protected List<string> GetSources(GraphicElement elAssy)
+        {
+            List<string> sourceList = new List<string>();
+
+            foreach (GraphicElement srcEl in canvasController.Elements.Where(srcEl => elAssy.DisplayRectangle.Contains(srcEl.DisplayRectangle)))
+            {
+                sourceList.Add(GetCode(srcEl));
+            }
+
+            return sourceList;
+        }
+
+        protected string GetCode(GraphicElement el)
+        {
+            string code;
+            el.Json.TryGetValue("Code", out code);
+
+            return code ?? "";
         }
     }
 }

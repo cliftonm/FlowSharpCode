@@ -47,7 +47,7 @@ namespace FlowSharpCode
             docCanvas.Controls.Add(pnlFlowSharp);
             canvasController = ServiceManager.Get<IFlowSharpCanvasService>().CreateCanvas(pnlFlowSharp);
 
-            docEditor = dockingService.CreateDocument(docCanvas, DockAlignment.Right, "Editor", 0.50);
+            docEditor = dockingService.CreateDocument(docCanvas, DockAlignment.Bottom, "Editor", 0.50);
             pnlCodeEditor = new Panel() { Dock = DockStyle.Fill };
             docEditor.Controls.Add(pnlCodeEditor);
 

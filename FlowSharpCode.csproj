@@ -110,6 +110,10 @@
       <Project>{07f65ca7-b8d3-4716-bfbf-812ef4da68be}</Project>
       <Name>FlowSharpLib</Name>
     </ProjectReference>
+    <ProjectReference Include="FlowSharpCodeShapeInterfaces\FlowSharpCodeShapeInterfaces.csproj">
+      <Project>{8c7d37d1-f9d9-4633-b863-eac44b9dd999}</Project>
+      <Name>FlowSharpCodeShapeInterfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="FlowSharpServices\FlowSharpServices.csproj">
       <Project>{201553da-39e7-46af-b7d2-5f000362ff98}</Project>
       <Name>FlowSharpServices</Name>
