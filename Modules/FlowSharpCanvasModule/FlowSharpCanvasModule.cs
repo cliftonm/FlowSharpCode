@@ -22,10 +22,12 @@ namespace FlowSharpCanvasModule
 
     public class FlowSharpService : ServiceBase, IFlowSharpCanvasService
     {
+        public MouseController MouseController { get { return mouseController; } }
+
         protected MouseController mouseController;
         protected CanvasController canvasController;
         protected Canvas canvas;
-        protected List<GraphicElement> elements;
+        // protected List<GraphicElement> elements;
 
         public override void FinishedInitialization()
         {
@@ -35,10 +37,9 @@ namespace FlowSharpCanvasModule
 
         public BaseController CreateCanvas(Control parent)
         {
-            elements = new List<GraphicElement>();
             canvas = new Canvas();
             canvas.Initialize(parent);
-            canvasController = new CanvasController(canvas, elements);
+            canvasController = new CanvasController(canvas);
             mouseController = new MouseController(canvasController);
             mouseController.HookMouseEvents();
             mouseController.InitializeBehavior();

@@ -8,18 +8,33 @@ using Clifton.WinForm.ServiceInterfaces;
 using FlowSharpLib;
 using FlowSharpServices;
 
+/* 
+Links to explore:
+
+    http://www.cathedron.com/category.html?identifier=CAT_OVERVIEW
+    http://accelrys.com/products/collaborative-science/
+    http://www.knime.org/blog
+    https://en.wikipedia.org/wiki/Visual_modeling
+    https://en.wikipedia.org/wiki/Simulink
+    https://www.yworks.com/products/yed
+
+*/
+
 namespace FlowSharpCode
 {
     static partial class Program
     {
-        public static ICodeEditorService codeEditorService;
+        public static ICsCodeEditorService csCodeEditorService;
+        public static IPythonCodeEditorService pythonCodeEditorService;
 
         private static Form form;
         private static Control docCanvas;
-        private static Control docEditor;
+        private static Control csDocEditor;
+        private static Control pythonDocEditor;
         private static Control docToolbar;
         private static Control propGridToolbar;
-        private static Panel pnlCodeEditor;
+        private static Panel pnlCsCodeEditor;
+        private static Panel pnlPythonCodeEditor;
         private static PropertyGrid propGrid;
         private static BaseController canvasController;
 
@@ -47,9 +62,13 @@ namespace FlowSharpCode
             docCanvas.Controls.Add(pnlFlowSharp);
             canvasController = ServiceManager.Get<IFlowSharpCanvasService>().CreateCanvas(pnlFlowSharp);
 
-            docEditor = dockingService.CreateDocument(docCanvas, DockAlignment.Bottom, "Editor", 0.50);
-            pnlCodeEditor = new Panel() { Dock = DockStyle.Fill };
-            docEditor.Controls.Add(pnlCodeEditor);
+            csDocEditor = dockingService.CreateDocument(docCanvas, DockAlignment.Bottom, "C# Editor", 0.50);
+            pnlCsCodeEditor = new Panel() { Dock = DockStyle.Fill };
+            csDocEditor.Controls.Add(pnlCsCodeEditor);
+
+            pythonDocEditor = dockingService.CreateDocument(csDocEditor, DockAlignment.Right, "Python Editor", 0.50);
+            pnlPythonCodeEditor = new Panel() { Dock = DockStyle.Fill };
+            pythonDocEditor.Controls.Add(pnlPythonCodeEditor);
 
             docToolbar = dockingService.CreateDocument(DockState.DockLeft, "Toolbar");
             Panel pnlToolbox = new Panel() { Dock = DockStyle.Fill };
@@ -83,15 +102,38 @@ namespace FlowSharpCode
 
             form.ResumeLayout();
 
+            MouseController mouseController = ServiceManager.Get<IFlowSharpCanvasService>().MouseController;
+            mouseController.MouseClick += OnMouseClick;
+
             Application.Run(form);
+        }
+
+        private static void OnMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                GraphicElement el = canvasController.GetRootShapeAt(e.Location);
+
+                if (el != null)
+                {
+                    if (el.GetType().Name == "SemanticInstance")
+                    {
+
+                    }
+                }
+            }
         }
 
         private static void OnShown(object sender, EventArgs e)
         {
-            codeEditorService = ServiceManager.Get<ICodeEditorService>();
-            codeEditorService.CreateEditor(pnlCodeEditor);
-            codeEditorService.AddAssembly("Clifton.Core.dll");
-            codeEditorService.TextChanged += CodeEditorServiceTextChanged;
+            csCodeEditorService = ServiceManager.Get<ICsCodeEditorService>();
+            csCodeEditorService.CreateEditor(pnlCsCodeEditor);
+            csCodeEditorService.AddAssembly("Clifton.Core.dll");
+            csCodeEditorService.TextChanged += CodeEditorServiceTextChanged;
+
+            pythonCodeEditorService = ServiceManager.Get<IPythonCodeEditorService>();
+            pythonCodeEditorService.CreateEditor(pnlPythonCodeEditor);
+            pythonCodeEditorService.TextChanged += CodeEditorServiceTextChanged;
         }
 
         private static void CodeEditorServiceTextChanged(object sender, TextChangedEventArgs e)
@@ -125,11 +167,20 @@ namespace FlowSharpCode
 
                 string code;
                 el.Json.TryGetValue("Code", out code);
-                codeEditorService.SetText(code ?? String.Empty);
+
+                if (el.GetType().Name == "PythonFileBox")
+                {
+                    pythonCodeEditorService.SetText(code ?? String.Empty);
+                }
+                else
+                {
+                    csCodeEditorService.SetText(code ?? String.Empty);
+                }
             }
             else
             {
-                codeEditorService.SetText(String.Empty);
+                pythonCodeEditorService.SetText(String.Empty);
+                csCodeEditorService.SetText(String.Empty);
             }
 
             propGrid.SelectedObject = elementProperties;
@@ -148,7 +199,7 @@ namespace FlowSharpCode
             {
                 canvasController.Redraw(sel, el =>
                 {
-                    elementProperties.Update(el);
+                    elementProperties.Update(el, e.ChangedItem.Label);
                     el.UpdateProperties();
                     el.UpdatePath();
                 });

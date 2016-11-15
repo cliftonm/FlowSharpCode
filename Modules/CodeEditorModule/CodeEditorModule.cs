@@ -19,11 +19,11 @@ namespace CodeEditorModule
     {
         public void InitializeServices(IServiceManager serviceManager)
         {
-            serviceManager.RegisterSingleton<ICodeEditorService, CodeEditorService>();
+            serviceManager.RegisterSingleton<ICsCodeEditorService, CsCodeEditorService>();
         }
     }
 
-    public class CodeEditorService : ServiceBase, ICodeEditorService
+    public class CsCodeEditorService : ServiceBase, ICsCodeEditorService
     {
         public event EventHandler<TextChangedEventArgs> TextChanged;
 

@@ -130,6 +130,10 @@
       <Project>{8867b4ba-bd8b-4459-8b88-be6fae497ab7}</Project>
       <Name>FlowSharpToolboxModule</Name>
     </ProjectReference>
+    <ProjectReference Include="Modules\ScintillaModule\ScintillaModule.csproj">
+      <Project>{3dad8c29-4411-496f-9a6f-8b275dfbffe0}</Project>
+      <Name>ScintillaModule</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

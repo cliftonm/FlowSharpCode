@@ -13,22 +13,23 @@ using FlowSharpLib;
 
 namespace FlowSharpToolboxModule
 {
-	public class ToolboxController : BaseController
-	{
+    public class ToolboxController : BaseController
+    {
         public const int MIN_DRAG = 3;
 
-		protected BaseController canvasController;
+        protected BaseController canvasController;
         protected int xDisplacement = 0;
         protected bool mouseDown = false;
         protected Point mouseDownPosition;
         protected Point currentDragPosition;
         protected bool setup;
+        protected bool dragging;
 
-		public ToolboxController(Canvas canvas, List<GraphicElement> elements, BaseController canvasController) : base(canvas, elements)
-		{
-			this.canvasController = canvasController;
-			canvas.PaintComplete = CanvasPaintComplete;
-			canvas.MouseClick += OnMouseClick;
+        public ToolboxController(Canvas canvas, BaseController canvasController) : base(canvas)
+        {
+            this.canvasController = canvasController;
+            canvas.PaintComplete = CanvasPaintComplete;
+            canvas.MouseClick += OnMouseClick;
             canvas.MouseDown += OnMouseDown;
             canvas.MouseUp += OnMouseUp;
             canvas.MouseMove += OnMouseMove;
@@ -39,15 +40,15 @@ namespace FlowSharpToolboxModule
             xDisplacement = 0;
         }
 
-		public void OnMouseClick(object sender, MouseEventArgs args)
-		{
-		}
+        public void OnMouseClick(object sender, MouseEventArgs args)
+        {
+        }
 
         public void OnMouseDown(object sender, MouseEventArgs args)
         {
             if (args.Button == MouseButtons.Left)
             {
-                GraphicElement selectedElement = SelectElement(args.Location);
+                GraphicElement selectedElement = GetSelectedElement(args.Location);
                 mouseDown = true;
                 mouseDownPosition = args.Location;
                 SelectElement(selectedElement);
@@ -60,13 +61,13 @@ namespace FlowSharpToolboxModule
             {
                 if (selectedElements.Any())
                 {
-                    GraphicElement el = selectedElements[0].CloneDefault(canvasController.Canvas, new Point(xDisplacement, 0));
-                    el.UpdatePath();
+                    CreateShape();
                     xDisplacement += 80;
-                    canvasController.Insert(el);
-                    canvasController.DeselectCurrentSelectedElements();
-                    canvasController.SelectElement(el);
                 }
+            }
+            else if (args.Button == MouseButtons.Left && dragging)
+            {
+                canvasController.UndoStack.FinishGroup();       // Finish any move operation from click-drag process.
             }
 
             dragging = false;
@@ -87,29 +88,8 @@ namespace FlowSharpToolboxModule
                 {
                     dragging = true;
                     setup = true;
-                    canvasController.DeselectCurrentSelectedElements();
                     ResetDisplacement();
-                    Point screenPos = new Point(canvas.Width, args.Location.Y);     // target canvas screen position is the toolbox canvas width, toolbox mouse Y.
-                    Point canvasPos = new Point(0, args.Location.Y);                // target canvas position is left edge, toolbox mouse Y.
-                    Point p = canvas.PointToScreen(screenPos);                      // screen position of mouse cursor, relative to the target canvas.
-                    Cursor.Position = p;
-
-                    GraphicElement el = selectedElements[0].CloneDefault(canvasController.Canvas);
-                    canvasController.Insert(el);
-                    // Shape is placed so that the center of the shape is at the left edge (X), centered around the toolbox mouse (Y)
-                    // The "-5" accounts for additional pixels between the toolbox end and the canvas start, should be calculable by converting toolbox canvas width to screen coordinate and subtracting
-                    // that from the target canvas left edge screen coordinate.
-                    Point offset = new Point(-el.DisplayRectangle.X - el.DisplayRectangle.Width/2 - 5, -el.DisplayRectangle.Y + args.Location.Y - el.DisplayRectangle.Height / 2);
-
-                    // TODO: Why this fudge factor for DC's?
-                    if (el is DynamicConnector)
-                    {
-                        offset = offset.Move(8, 6);
-                        el.ShowAnchors = true;
-                    }
-
-                    canvasController.MoveElement(el, offset);
-                    canvasController.SelectElement(el);
+                    CreateShape();
                     canvas.Cursor = Cursors.SizeAll;
                 }
             }
@@ -127,10 +107,55 @@ namespace FlowSharpToolboxModule
                 {
                     // Toolbox controller still has control, so simulate dragging on the canvas.
                     Point delta = args.Location.Delta(currentDragPosition);
-                    canvasController.DragSelectedElements(delta);
+
+                    if (delta != Point.Empty)
+                    {
+                        canvasController.UndoStack.UndoRedo("Move " + selectedElements[0].ToString(),
+                            () => canvasController.DragSelectedElements(delta),
+                            () => canvasController.DragSelectedElements(delta.ReverseDirection(), true) // simulate by keypress, so connector immediately disconnects.
+                            , false);
+                    }
+
                     currentDragPosition = args.Location;
                 }
             }
+        }
+
+        protected void CreateShape()
+        {
+            int where = xDisplacement;
+
+            // For undo, we need to preserve currently selected shapes.
+            List<GraphicElement> currentSelectedShapes = canvasController.SelectedElements.ToList();
+            GraphicElement selectedElement = selectedElements[0];
+            GraphicElement el = selectedElement.CloneDefault(canvasController.Canvas, new Point(where, 0));
+
+            canvasController.UndoStack.UndoRedo("Create " + selectedElement.ToString(),
+                () =>
+                {
+                    ElementCache.Instance.Remove(el);
+                    el.UpdatePath();
+                    canvasController.Insert(el);
+                    canvasController.DeselectCurrentSelectedElements();
+                    canvasController.SelectElement(el);
+
+                    if (dragging)
+                    {
+                        Cursor.Position = canvas.PointToScreen(el.DisplayRectangle.Center().Move(canvas.Width, 0));
+
+                        if (el.IsConnector)
+                        {
+                            el.ShowAnchors = true;
+                        }
+                    }
+                },
+                () =>
+                {
+                    ElementCache.Instance.Add(el);
+                    canvasController.DeselectCurrentSelectedElements();
+                    canvasController.DeleteElement(el, false);
+                    canvasController.SelectElements(currentSelectedShapes);
+                });
         }
 
         public override void SelectElement(GraphicElement el)
@@ -139,8 +164,8 @@ namespace FlowSharpToolboxModule
 
             if (el != null)
             {
-                var els = EraseTopToBottom(el);
-                el.Selected = true;
+                var els = EraseIntersectionsTopToBottom(el);
+                el.Select();
                 DrawBottomToTop(els);
                 UpdateScreen(els);
                 selectedElements.Add(el);
@@ -148,19 +173,19 @@ namespace FlowSharpToolboxModule
             }
         }
 
-        protected GraphicElement SelectElement(Point p)
-		{
-			GraphicElement el = elements.FirstOrDefault(e => e.DisplayRectangle.Contains(p));
+        protected GraphicElement GetSelectedElement(Point p)
+        {
+            GraphicElement el = elements.FirstOrDefault(e => e.DisplayRectangle.Contains(p));
 
-			return el;
-		}
+            return el;
+        }
 
         protected void DeselectCurrentSelectedElement()
         {
             if (selectedElements.Any())
             {
-                var els = EraseTopToBottom(selectedElements[0]);
-                selectedElements[0].Selected = false;
+                var els = EraseIntersectionsTopToBottom(selectedElements[0]);
+                selectedElements[0].Deselect();
                 DrawBottomToTop(els);
                 UpdateScreen(els);
                 selectedElements.Clear();

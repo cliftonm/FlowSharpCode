@@ -14,13 +14,13 @@ using FlowSharpCodeShapeInterfaces;
 
 namespace FlowSharpCodeShapes
 {
-    public class FileBox : Box, IFileBox
+    public class PythonFileBox : Box, IFileBox
     {
         public string Filename { get; set; }
 
-        public FileBox(Canvas canvas) : base(canvas)
+        public PythonFileBox(Canvas canvas) : base(canvas)
         {
-            Text = "File";
+            Text = ".py";
             TextFont.Dispose();
             TextFont = new Font(FontFamily.GenericSansSerif, 6);
             TextAlign = ContentAlignment.TopCenter;
@@ -60,7 +60,7 @@ namespace FlowSharpCodeShapes
 
         public override ElementProperties CreateProperties()
         {
-            return new FileBoxProperties(this);
+            return new PythonFileBoxProperties(this);
         }
 
         public override void Serialize(ElementPropertyBag epb, IEnumerable<GraphicElement> elementsBeingSerialized)
@@ -84,26 +84,25 @@ namespace FlowSharpCodeShapes
         }
     }
 
-    public class FileBoxProperties : ElementProperties
+    public class PythonFileBoxProperties : ElementProperties
     {
         [Category("Assembly")]
         public string Filename { get; set; }
 
-        public FileBoxProperties(FileBox el) : base(el)
+        public PythonFileBoxProperties(PythonFileBox el) : base(el)
         {
             Filename = el.Filename;
         }
 
         public override void Update(GraphicElement el, string label)
         {
-            FileBox box = (FileBox)el;
+            PythonFileBox box = (PythonFileBox)el;
 
             (label == "Filename").If(() =>
             {
-
                 box.Filename = Filename;
                 box.UpdateCodeBehind();
-                box.Text = string.IsNullOrEmpty(Filename) ? "File" : ("File: " + Path.GetFileName(Filename));
+                box.Text = string.IsNullOrEmpty(Filename) ? "?.py" : (Path.GetFileName(Filename));
             });
 
             base.Update(el, label);

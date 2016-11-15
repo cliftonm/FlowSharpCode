@@ -14,28 +14,14 @@ using FlowSharpCodeShapeInterfaces;
 
 namespace FlowSharpCodeShapes
 {
-    public class FileBox : Box, IFileBox
+    public class SemanticInstance : Box
     {
-        public string Filename { get; set; }
-
-        public FileBox(Canvas canvas) : base(canvas)
+        public SemanticInstance(Canvas canvas) : base(canvas)
         {
-            Text = "File";
             TextFont.Dispose();
             TextFont = new Font(FontFamily.GenericSansSerif, 6);
             TextAlign = ContentAlignment.TopCenter;
-        }
-
-        public void UpdateCodeBehind()
-        {
-            string data = "";
-
-            if (File.Exists(Filename))
-            {
-                data = File.ReadAllText(Filename);
-            }
-
-            Json["Code"] = data;
+            Text = "ST";
         }
 
         public override GraphicElement CloneDefault(Canvas canvas)
@@ -60,50 +46,47 @@ namespace FlowSharpCodeShapes
 
         public override ElementProperties CreateProperties()
         {
-            return new FileBoxProperties(this);
+            SemanticInstanceProperties props = new SemanticInstanceProperties(this);
+            props.SemanticType = Text;
+
+            return props;
         }
 
         public override void Serialize(ElementPropertyBag epb, IEnumerable<GraphicElement> elementsBeingSerialized)
         {
             // TODO: Use JSON dictionary instead.
-            epb.ExtraData = Filename;
             base.Serialize(epb, elementsBeingSerialized);
-
-            // Also update the backing file.
-            if (Json.ContainsKey("Code"))
-            {
-                File.WriteAllText(Filename, Json["Code"]);
-            }
         }
 
         public override void Deserialize(ElementPropertyBag epb)
         {
             // TODO: Use JSON dictionary instead.
-            Filename = epb.ExtraData;
             base.Deserialize(epb);
         }
     }
 
-    public class FileBoxProperties : ElementProperties
+    public class SemanticInstanceProperties : ElementProperties
     {
         [Category("Assembly")]
-        public string Filename { get; set; }
+        public string SemanticType { get; set; }
 
-        public FileBoxProperties(FileBox el) : base(el)
+        public SemanticInstanceProperties(SemanticInstance el) : base(el)
         {
-            Filename = el.Filename;
+        }
+
+        public override void UpdateFrom(GraphicElement el)
+        {
+            SemanticType = el.Text;
+            base.UpdateFrom(el);
         }
 
         public override void Update(GraphicElement el, string label)
         {
-            FileBox box = (FileBox)el;
+            SemanticInstance si = (SemanticInstance)el;
 
-            (label == "Filename").If(() =>
+            (label == "SemanticType").If(() =>
             {
-
-                box.Filename = Filename;
-                box.UpdateCodeBehind();
-                box.Text = string.IsNullOrEmpty(Filename) ? "File" : ("File: " + Path.GetFileName(Filename));
+                si.Text = string.IsNullOrEmpty(SemanticType) ? "ST" : (SemanticType);
             });
 
             base.Update(el, label);

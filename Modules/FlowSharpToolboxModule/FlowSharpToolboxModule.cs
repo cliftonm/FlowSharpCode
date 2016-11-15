@@ -24,8 +24,8 @@ namespace FlowSharpToolboxModule
     {
         protected ToolboxController toolboxController;
         protected Canvas toolboxCanvas;
-        protected List<GraphicElement> toolboxElements;
         protected PluginManager pluginManager;
+        protected Control pnlToolbox;
 
         public override void FinishedInitialization()
         {
@@ -35,35 +35,47 @@ namespace FlowSharpToolboxModule
 
         public void CreateToolbox(Control parent, BaseController canvasController)
         {
+            pnlToolbox = parent;
             pluginManager = new PluginManager();
             pluginManager.InitializePlugins();
 
-            toolboxElements = new List<GraphicElement>();
             toolboxCanvas = new ToolboxCanvas();
             toolboxCanvas.Initialize(parent);
-            toolboxController = new ToolboxController(toolboxCanvas, toolboxElements, canvasController);
-            int x = parent.Width / 2 - 12;
-            toolboxElements.Add(new Box(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 50, 15, 25, 25) });
-            toolboxElements.Add(new Ellipse(toolboxCanvas) { DisplayRectangle = new Rectangle(x, 15, 25, 25) });
-            toolboxElements.Add(new Diamond(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 50, 15, 25, 25) });
+            toolboxController = new ToolboxController(toolboxCanvas, canvasController);
 
-            toolboxElements.Add(new LeftTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 60, 60, 25, 25) });
-            toolboxElements.Add(new RightTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 20, 60, 25, 25) });
-            toolboxElements.Add(new UpTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 20, 60, 25, 25) });
-            toolboxElements.Add(new DownTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 60, 60, 25, 25) });
+            InitializeToolbox();
+            InitializePluginsInToolbox();
+            UpdateToolboxPaths();
+        }
 
-            toolboxElements.Add(new HorizontalLine(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 50, 130, 30, 20) });
-            toolboxElements.Add(new VerticalLine(toolboxCanvas) { DisplayRectangle = new Rectangle(x, 125, 20, 30) });
-            toolboxElements.Add(new DiagonalConnector(toolboxCanvas, new Point(x + 50, 125), new Point(x + 50 + 25, 125 + 25)));
+        protected void InitializeToolbox()
+        {
+            int x = pnlToolbox.Width / 2 - 12;
+            toolboxController.AddElement(new Box(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 50, 15, 25, 25) });
+            toolboxController.AddElement(new Ellipse(toolboxCanvas) { DisplayRectangle = new Rectangle(x, 15, 25, 25) });
+            toolboxController.AddElement(new Diamond(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 50, 15, 25, 25) });
+
+            toolboxController.AddElement(new LeftTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 60, 60, 25, 25) });
+            toolboxController.AddElement(new RightTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 20, 60, 25, 25) });
+            toolboxController.AddElement(new UpTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 20, 60, 25, 25) });
+            toolboxController.AddElement(new DownTriangle(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 60, 60, 25, 25) });
+
+            toolboxController.AddElement(new HorizontalLine(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 50, 130, 30, 20) });
+            toolboxController.AddElement(new VerticalLine(toolboxCanvas) { DisplayRectangle = new Rectangle(x, 125, 20, 30) });
+            toolboxController.AddElement(new DiagonalConnector(toolboxCanvas, new Point(x + 50, 125), new Point(x + 50 + 25, 125 + 25)));
 
             // toolboxElements.Add(new ToolboxDynamicConnectorLR(toolboxCanvas) { DisplayRectangle = new Rectangle(x - 50, 185, 25, 25)});
-            toolboxElements.Add(new DynamicConnectorLR(toolboxCanvas, new Point(x - 50, 175), new Point(x - 50 + 25, 175 + 25)));
-            toolboxElements.Add(new DynamicConnectorLD(toolboxCanvas, new Point(x, 175), new Point(x + 25, 175 + 25)));
-            toolboxElements.Add(new DynamicConnectorUD(toolboxCanvas, new Point(x + 50, 175), new Point(x + 50 + 25, 175 + 25)));
+            toolboxController.AddElement(new DynamicConnectorLR(toolboxCanvas, new Point(x - 50, 175), new Point(x - 50 + 25, 175 + 25)));
+            toolboxController.AddElement(new DynamicConnectorLD(toolboxCanvas, new Point(x, 175), new Point(x + 25, 175 + 25)));
+            toolboxController.AddElement(new DynamicConnectorUD(toolboxCanvas, new Point(x + 50, 175), new Point(x + 50 + 25, 175 + 25)));
 
-            toolboxElements.Add(new ToolboxText(toolboxCanvas) { DisplayRectangle = new Rectangle(x, 230, 25, 25) });
+            toolboxController.AddElement(new ToolboxText(toolboxCanvas) { DisplayRectangle = new Rectangle(x, 230, 25, 25) });
             // toolboxElements.Add(new DiagonalLine(toolboxCanvas) { DisplayRectangle = new Rectangle(x + 25, 230, 25, 25) });
+        }
 
+        protected void InitializePluginsInToolbox()
+        {
+            int x = pnlToolbox.Width / 2 - 12;
             List<Type> pluginShapes = pluginManager.GetShapeTypes();
 
             // Plugin shapes
@@ -74,7 +86,7 @@ namespace FlowSharpToolboxModule
             {
                 GraphicElement pluginShape = Activator.CreateInstance(t, new object[] { toolboxCanvas }) as GraphicElement;
                 pluginShape.DisplayRectangle = new Rectangle(n, y, 25, 25);
-                toolboxElements.Add(pluginShape);
+                toolboxController.AddElement(pluginShape);
 
                 // Next toolbox shape position:
                 n += 40;
@@ -85,8 +97,11 @@ namespace FlowSharpToolboxModule
                     y += 40;
                 }
             }
+        }
 
-            toolboxElements.ForEach(el => el.UpdatePath());
+        protected void UpdateToolboxPaths()
+        {
+            toolboxController.Elements.ForEach(el => el.UpdatePath());
         }
     }
 

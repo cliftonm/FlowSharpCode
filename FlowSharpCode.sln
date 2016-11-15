@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowSharpCodeShapes", "Flow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowSharpCodeShapeInterfaces", "FlowSharpCodeShapeInterfaces\FlowSharpCodeShapeInterfaces.csproj", "{8C7D37D1-F9D9-4633-B863-EAC44B9DD999}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScintillaModule", "Modules\ScintillaModule\ScintillaModule.csproj", "{3DAD8C29-4411-496F-9A6F-8B275DFBFFE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{8C7D37D1-F9D9-4633-B863-EAC44B9DD999}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C7D37D1-F9D9-4633-B863-EAC44B9DD999}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C7D37D1-F9D9-4633-B863-EAC44B9DD999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DAD8C29-4411-496F-9A6F-8B275DFBFFE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DAD8C29-4411-496F-9A6F-8B275DFBFFE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DAD8C29-4411-496F-9A6F-8B275DFBFFE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DAD8C29-4411-496F-9A6F-8B275DFBFFE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,5 +91,6 @@ Global
 		{2E4F4A03-C3D2-46AF-AE39-9639FFF3C6FD} = {FB3ABF53-773C-440E-8D61-1493A8831872}
 		{8867B4BA-BD8B-4459-8B88-BE6FAE497AB7} = {FB3ABF53-773C-440E-8D61-1493A8831872}
 		{31ADB0B8-D646-4AE7-8853-9C6FF9137F7A} = {FB3ABF53-773C-440E-8D61-1493A8831872}
+		{3DAD8C29-4411-496F-9A6F-8B275DFBFFE0} = {FB3ABF53-773C-440E-8D61-1493A8831872}
 	EndGlobalSection
 EndGlobal

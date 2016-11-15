@@ -30,7 +30,7 @@ namespace FlowSharpCodeShapes
             return new AssemblyBoxProperties(this);
         }
 
-        public override void Serialize(ElementPropertyBag epb, List<GraphicElement> elementsBeingSerialized)
+        public override void Serialize(ElementPropertyBag epb, IEnumerable<GraphicElement> elementsBeingSerialized)
         {
             // TODO: Use JSON dictionary instead.
             epb.ExtraData = Filename;
@@ -55,13 +55,17 @@ namespace FlowSharpCodeShapes
             Filename = el.Filename;
         }
 
-        public override void Update(GraphicElement el)
+        public override void Update(GraphicElement el, string label)
         {
             AssemblyBox box = (AssemblyBox)el;
-            box.Filename = Filename;
-            box.Text = string.IsNullOrEmpty(Filename) ? "Assy" : ("Assy: " + Filename);
+
+            (label == "Filename").If(() =>
+              {
+                  box.Filename = Filename;
+                  box.Text = string.IsNullOrEmpty(Filename) ? "Assy" : ("Assy: " + Filename);
+              });
             
-            base.Update(el);
+            base.Update(el, label);
         }
     }
 }

@@ -14,6 +14,8 @@ namespace FlowSharpServices
 
     public interface IFlowSharpCanvasService : IService
     {
+        MouseController MouseController { get; }
+
         BaseController CreateCanvas(Control parent);
     }
 
@@ -22,7 +24,7 @@ namespace FlowSharpServices
         void CreateToolbox(Control parent, BaseController canvasController);
     }
 
-    public interface ICodeEditorService : IService
+    public interface ICsCodeEditorService : IService
     {
         event EventHandler<TextChangedEventArgs> TextChanged;
 
@@ -30,6 +32,14 @@ namespace FlowSharpServices
         void AddAssembly(string filename);
         void AddAssembly(Type t);
 
+        void SetText(string text);
+    }
+
+    public interface IPythonCodeEditorService : IService
+    {
+        event EventHandler<TextChangedEventArgs> TextChanged;
+
+        void CreateEditor(Control parent);
         void SetText(string text);
     }
 }

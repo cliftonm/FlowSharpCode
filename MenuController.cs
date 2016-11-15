@@ -28,6 +28,7 @@ namespace FlowSharpCode
         protected Form form;
 
         protected CompilerResults results;
+        protected Dictionary<string, string> tempToTextBoxMap = new Dictionary<string, string>();
 
         public MenuController(Form form, Menu menu, BaseController canvasController)
         {
@@ -129,7 +130,7 @@ namespace FlowSharpCode
 
                     IEnumerable<GraphicElement> distinctIntersections = intersections.Distinct();
                     canvasController.EraseTopToBottom(distinctIntersections);
-                    els.ForEach(el => canvasController.Elements.Insert(0, el));
+                    els.ForEach(el => canvasController.Insert(0, el));
                     canvasController.DrawBottomToTop(distinctIntersections);
                     canvasController.UpdateScreen(distinctIntersections);
                     noParentElements.ForEach(el => canvasController.SelectElement(el));
@@ -145,7 +146,7 @@ namespace FlowSharpCode
         {
             // TODO: Better implementation would be for the mouse controller to hook a shape deleted event?
             canvasController.SelectedElements.ForEach(el => canvasController.MouseController.ShapeDeleted(el));
-            canvasController.DeleteSelectedElements();
+            canvasController.DeleteSelectedElementsHierarchy();
         }
 
         private void mnuTopmost_Click(object sender, EventArgs e)
@@ -189,12 +190,12 @@ namespace FlowSharpCode
         private void mnuNew_Click(object sender, EventArgs e)
         {
             // TODO: Check for changes before closing.
-            canvasController.Elements.Clear();              // TODO: This is ugly!  Hook an event or decouple in some other way.
+            canvasController.Clear();              // TODO: This is ugly!  Hook an event or decouple in some other way.
             canvasController.Canvas.Invalidate();
             filename = String.Empty;
 
             UpdateCaption();
-            Program.codeEditorService.SetText("");          // TODO: This is ugly!  Hook event or decouple in some other way.
+            Program.csCodeEditorService.SetText("");          // TODO: This is ugly!  Hook event or decouple in some other way.
         }
 
         private void mnuOpen_Click(object sender, EventArgs e)
@@ -215,13 +216,13 @@ namespace FlowSharpCode
 
             string data = File.ReadAllText(filename);
             List<GraphicElement> els = Persist.Deserialize(canvasController.Canvas, data);
-            canvasController.Elements.Clear();              // TODO: This is ugly!  Hook an event or decouple in some other way.
-            canvasController.Elements.AddRange(els);
+            canvasController.Clear();              // TODO: This is ugly!  Hook an event or decouple in some other way.
+            canvasController.AddElements(els);
             canvasController.Elements.ForEach(el => el.UpdatePath());
             canvasController.Canvas.Invalidate();
 
             UpdateCaption();
-            Program.codeEditorService.SetText("");          // TODO: This is ugly!  Hook event or decouple in some other way.
+            Program.csCodeEditorService.SetText("");          // TODO: This is ugly!  Hook event or decouple in some other way.
         }
 
         private void mnuImport_Click(object sender, EventArgs e)
@@ -235,7 +236,7 @@ namespace FlowSharpCode
                 string importFilename = ofd.FileName;
                 string data = File.ReadAllText(importFilename);
                 List<GraphicElement> els = Persist.Deserialize(canvasController.Canvas, data);
-                canvasController.Elements.AddRange(els);
+                canvasController.AddElements(els);
                 canvasController.Elements.ForEach(el => el.UpdatePath());
                 els.ForEach(el => canvasController.Canvas.Controller.SelectElement(el));
                 canvasController.Canvas.Invalidate();
@@ -300,7 +301,8 @@ namespace FlowSharpCode
         {
             if (canvasController.SelectedElements.Any())
             {
-                FlowSharpLib.GroupBox groupBox = canvasController.GroupShapes(canvasController.SelectedElements);
+                FlowSharpLib.GroupBox groupBox = new FlowSharpLib.GroupBox(canvasController.Canvas);
+                canvasController.GroupShapes(groupBox);
                 canvasController.DeselectCurrentSelectedElements();
                 canvasController.SelectElement(groupBox);
             }
@@ -308,10 +310,9 @@ namespace FlowSharpCode
 
         private void mnuUngroup_Click(object sender, EventArgs e)
         {
-            canvasController.UngroupShapes(canvasController.SelectedElements);
-            canvasController.SelectedElements.Clear();
+            canvasController.UngroupShapes(canvasController.SelectedElements[0] as FlowSharpLib.GroupBox);
+            canvasController.Clear();
         }
-
 
         private void mnuPlugins_Click(object sender, EventArgs e)
         {
@@ -327,21 +328,38 @@ namespace FlowSharpCode
 
         protected void Compile()
         {
+            tempToTextBoxMap.Clear();
             List<GraphicElement> compiledAssemblies = new List<GraphicElement>();
 
             bool ok = CompileAssemblies(compiledAssemblies);
 
-            if (!ok) return;
+            if (!ok)
+            {
+                DeleteTempFiles();
+                return;
+            }
 
             List<string> refs = new List<string>();
             List<string> sources = new List<string>();
             List<GraphicElement> rootSourceShapes = GetSources();
-            rootSourceShapes.ForEach(root => GetReferencedAssemblies(root).ForEach(refassy => refs.Add(((IAssemblyBox)refassy).Filename)));
+            rootSourceShapes.ForEach(root => GetReferencedAssemblies(root).Where(refassy => refassy is IAssemblyBox).ForEach(refassy => refs.Add(((IAssemblyBox)refassy).Filename)));
 
             // TODO: Better Linq!
-            rootSourceShapes.Where(root => !String.IsNullOrEmpty(GetCode(root))).ForEach(root => sources.Add(GetCode(root)));
+            rootSourceShapes.Where(root => !String.IsNullOrEmpty(GetCode(root))).ForEach(root =>
+            {
+                string filename = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + ".cs";
+                tempToTextBoxMap[filename] = root.Text;
+                File.WriteAllText(filename, GetCode(root));
+                sources.Add(filename);
+            });
 
             Compile("foo.exe", sources, refs, true);
+            DeleteTempFiles();
+        }
+
+        protected void DeleteTempFiles()
+        {
+            tempToTextBoxMap.ForEach(kvp => File.Delete(kvp.Key));
         }
 
         private void MnuRun_Click(object sender, EventArgs e)
@@ -452,6 +470,7 @@ namespace FlowSharpCode
 
             parameters.ReferencedAssemblies.Add("System.dll");
             parameters.ReferencedAssemblies.Add("System.Data.dll");
+            parameters.ReferencedAssemblies.Add("System.Data.Linq.dll");
             parameters.ReferencedAssemblies.Add("System.Core.dll");
             parameters.ReferencedAssemblies.Add("System.Net.dll");
             parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
@@ -466,7 +485,9 @@ namespace FlowSharpCode
                 parameters.MainClass = "App.Program";
             }
 
-            results = provider.CompileAssemblyFromSource(parameters, sources.ToArray());
+            // results = provider.CompileAssemblyFromSource(parameters, sources.ToArray());
+
+            results = provider.CompileAssemblyFromFile(parameters, sources.ToArray());
             ok = !results.Errors.HasErrors;
 
             if (results.Errors.HasErrors)
@@ -475,7 +496,7 @@ namespace FlowSharpCode
 
                 foreach (CompilerError error in results.Errors)
                 {
-                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
+                    sb.AppendLine(String.Format("Error ({0} - {1}): {2}", tempToTextBoxMap[Path.GetFileNameWithoutExtension(error.FileName) + ".cs"], error.Line, error.ErrorText));
                 }
 
                 MessageBox.Show(sb.ToString(), assyFilename, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -515,7 +536,10 @@ namespace FlowSharpCode
 
             foreach (GraphicElement srcEl in canvasController.Elements.Where(srcEl => elAssy.DisplayRectangle.Contains(srcEl.DisplayRectangle)))
             {
-                sourceList.Add(GetCode(srcEl));
+                string filename = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + ".cs";
+                tempToTextBoxMap[filename] = srcEl.Text;
+                File.WriteAllText(filename, GetCode(srcEl));
+                sourceList.Add(filename);
             }
 
             return sourceList;
