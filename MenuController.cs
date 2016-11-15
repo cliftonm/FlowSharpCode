@@ -310,8 +310,10 @@ namespace FlowSharpCode
 
         private void mnuUngroup_Click(object sender, EventArgs e)
         {
-            canvasController.UngroupShapes(canvasController.SelectedElements[0] as FlowSharpLib.GroupBox);
-            canvasController.Clear();
+            FlowSharpLib.GroupBox groupbox = canvasController.SelectedElements[0] as FlowSharpLib.GroupBox;
+            canvasController.DeselectCurrentSelectedElements();
+            canvasController.UngroupShapes(groupbox);
+            canvasController.MouseController.ClearState();
         }
 
         private void mnuPlugins_Click(object sender, EventArgs e)
