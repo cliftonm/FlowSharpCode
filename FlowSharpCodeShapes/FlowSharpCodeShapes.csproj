@@ -44,9 +44,11 @@
   <ItemGroup>
     <Compile Include="AssemblyBox.cs" />
     <Compile Include="FileBox.cs" />
+    <Compile Include="HtmlFileBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PythonFileBox.cs" />
     <Compile Include="ST_Instance.cs" />
+    <Compile Include="WorkflowBox.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FlowSharp\FlowSharpLib\FlowSharpLib.csproj">

@@ -31,6 +31,9 @@ namespace FlowSharpCode
         public ToolStripMenuItem mnuUngroup;
         public ToolStripMenuItem mnuPlugins;
         public ToolStripSeparator toolStripMenuItem4;
+        private ToolStripSeparator toolStripMenuItem5;
+        public ToolStripMenuItem mnuUndo;
+        public ToolStripMenuItem mnuRedo;
 
         public ToolStripMenuItem buildToolStripMenuItem;
         public ToolStripMenuItem mnuCompile;
@@ -55,6 +58,9 @@ namespace FlowSharpCode
             mnuCopy = new ToolStripMenuItem();
             mnuPaste = new ToolStripMenuItem();
             mnuDelete = new ToolStripMenuItem();
+            toolStripMenuItem5 = new ToolStripSeparator();
+            this.mnuUndo = new ToolStripMenuItem();
+            this.mnuRedo = new ToolStripMenuItem();
             viewToolStripMenuItem = new ToolStripMenuItem();
             mnuDebugWindow = new ToolStripMenuItem();
             orderToolStripMenuItem = new ToolStripMenuItem();
@@ -114,23 +120,26 @@ namespace FlowSharpCode
             mnuRun});
             buildToolStripMenuItem.Name = "buildToolStripMenuItem";
             buildToolStripMenuItem.Size = new System.Drawing.Size(37, 21);
-            buildToolStripMenuItem.Text = "&Build";
+            buildToolStripMenuItem.Text = "Bu&ild";
             // 
             // mnuNew
             // 
             mnuNew.Name = "mnuNew";
+            this.mnuNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             mnuNew.Size = new System.Drawing.Size(165, 24);
             mnuNew.Text = "&New";
             // 
             // mnuRun
             // 
             mnuRun.Name = "mnuRun";
+            this.mnuRun.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.R)));
             mnuRun.Size = new System.Drawing.Size(165, 24);
             mnuRun.Text = "&Run";
             // 
             // mnuCompile
             // 
             mnuCompile.Name = "mnuCompile";
+            this.mnuCompile.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.C)));
             mnuCompile.Size = new System.Drawing.Size(165, 24);
             mnuCompile.Text = "&Compile";
             // 
@@ -142,6 +151,7 @@ namespace FlowSharpCode
             // mnuOpen
             // 
             mnuOpen.Name = "mnuOpen";
+            this.mnuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             mnuOpen.Size = new System.Drawing.Size(165, 24);
             mnuOpen.Text = "&Open...";
             // 
@@ -159,6 +169,7 @@ namespace FlowSharpCode
             // mnuSave
             // 
             mnuSave.Name = "mnuSave";
+            this.mnuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             mnuSave.Size = new System.Drawing.Size(165, 24);
             mnuSave.Text = "&Save";
             // 
@@ -187,6 +198,7 @@ namespace FlowSharpCode
             // mnuExit
             // 
             mnuExit.Name = "mnuExit";
+            this.mnuExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
             mnuExit.Size = new System.Drawing.Size(165, 24);
             mnuExit.Text = "E&xit";
             // 
@@ -195,7 +207,10 @@ namespace FlowSharpCode
             editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             mnuCopy,
             mnuPaste,
-            mnuDelete});
+            mnuDelete,
+            this.toolStripMenuItem5,
+            this.mnuUndo,
+            this.mnuRedo});
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new System.Drawing.Size(39, 21);
             editToolStripMenuItem.Text = "&Edit";
@@ -203,18 +218,21 @@ namespace FlowSharpCode
             // mnuCopy
             // 
             mnuCopy.Name = "mnuCopy";
+            this.mnuCopy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
             mnuCopy.Size = new System.Drawing.Size(110, 24);
             mnuCopy.Text = "&Copy";
             // 
             // mnuPaste
             // 
             mnuPaste.Name = "mnuPaste";
+            this.mnuPaste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
             mnuPaste.Size = new System.Drawing.Size(110, 24);
             mnuPaste.Text = "&Paste";
             // 
             // mnuDelete
             // 
             mnuDelete.Name = "mnuDelete";
+            this.mnuDelete.ShortcutKeys = System.Windows.Forms.Keys.Delete;
             mnuDelete.Size = new System.Drawing.Size(110, 24);
             mnuDelete.Text = "&Delete";
             // 
@@ -246,24 +264,28 @@ namespace FlowSharpCode
             // mnuTopmost
             // 
             mnuTopmost.Name = "mnuTopmost";
+            this.mnuTopmost.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.T)));
             mnuTopmost.Size = new System.Drawing.Size(141, 24);
             mnuTopmost.Text = "To &Top";
             // 
             // mnuBottommost
             // 
             mnuBottommost.Name = "mnuBottommost";
+            this.mnuBottommost.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.B)));
             mnuBottommost.Size = new System.Drawing.Size(141, 24);
             mnuBottommost.Text = "To &Bottom";
             // 
             // mnuMoveUp
             // 
             mnuMoveUp.Name = "mnuMoveUp";
+            this.mnuMoveUp.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.U)));
             mnuMoveUp.Size = new System.Drawing.Size(141, 24);
             mnuMoveUp.Text = "Move &Up";
             // 
             // mnuMoveDown
             // 
             mnuMoveDown.Name = "mnuMoveDown";
+            this.mnuMoveDown.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.D)));
             mnuMoveDown.Size = new System.Drawing.Size(141, 24);
             mnuMoveDown.Text = "Move &Down";
             // 
@@ -279,14 +301,30 @@ namespace FlowSharpCode
             // mnuGroup
             // 
             mnuGroup.Name = "mnuGroup";
+            this.mnuGroup.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
             mnuGroup.Size = new System.Drawing.Size(124, 24);
             mnuGroup.Text = "&Group";
             // 
             // mnuUngroup
             // 
             mnuUngroup.Name = "mnuUngroup";
+            this.mnuUngroup.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.U)));
             mnuUngroup.Size = new System.Drawing.Size(124, 24);
             mnuUngroup.Text = "&Ungroup";
+            // 
+            // mnuUndo
+            // 
+            this.mnuUndo.Name = "mnuUndo";
+            this.mnuUndo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.mnuUndo.Size = new System.Drawing.Size(165, 24);
+            this.mnuUndo.Text = "&Undo";
+            // 
+            // mnuRedo
+            // 
+            this.mnuRedo.Name = "mnuRedo";
+            this.mnuRedo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
+            this.mnuRedo.Size = new System.Drawing.Size(165, 24);
+            this.mnuRedo.Text = "&Redo";
 
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

@@ -26,6 +26,7 @@ namespace FlowSharpCode
     {
         public static ICsCodeEditorService csCodeEditorService;
         public static IPythonCodeEditorService pythonCodeEditorService;
+        public static Operations operations;
 
         private static Form form;
         private static Control docCanvas;
@@ -40,8 +41,6 @@ namespace FlowSharpCode
 
         private static ElementProperties elementProperties;
 
-        private static Dictionary<Keys, Action> keyActions = new Dictionary<Keys, Action>();
-
         [STAThread]
         static void Main()
         {
@@ -54,7 +53,6 @@ namespace FlowSharpCode
             form.Text = "FlowSharpCode";
             form.Size = new Size(1200, 800);
             form.Shown += OnShown;
-            ((IBaseForm)form).ProcessCmdKeyEvent += OnProcessCmdKeyEvent;
             form.SuspendLayout();
 
             docCanvas = dockingService.CreateDocument(DockState.Document, "Canvas");
@@ -66,7 +64,7 @@ namespace FlowSharpCode
             pnlCsCodeEditor = new Panel() { Dock = DockStyle.Fill };
             csDocEditor.Controls.Add(pnlCsCodeEditor);
 
-            pythonDocEditor = dockingService.CreateDocument(csDocEditor, DockAlignment.Right, "Python Editor", 0.50);
+            pythonDocEditor = dockingService.CreateDocument(csDocEditor, DockAlignment.Right, "Editor", 0.50);
             pnlPythonCodeEditor = new Panel() { Dock = DockStyle.Fill };
             pythonDocEditor.Controls.Add(pnlPythonCodeEditor);
 
@@ -83,20 +81,22 @@ namespace FlowSharpCode
             canvasController.UpdateSelectedElement += UpdateSelectedElement;
             propGrid.PropertyValueChanged += new PropertyValueChangedEventHandler(OnPropertyValueChanged);
 
+            ProcessCmdKeyHandler keyHandler = new ProcessCmdKeyHandler(canvasController);
+            ((IBaseForm)form).ProcessCmdKeyEvent += keyHandler.ProcessCmdKey;
 
             Menu menu = new Menu();
             menu.Initialize();
             form.Controls.Add(menu.menuStrip1);
+            operations = new Operations(canvasController);
+            MenuController menuController = new MenuController(form, menu, canvasController, operations);
 
-            MenuController menuController = new MenuController(form, menu, canvasController);
-
-            keyActions[Keys.Control | Keys.C] = menuController.Copy;
-            keyActions[Keys.Control | Keys.V] = menuController.Paste;
-            keyActions[Keys.Delete] = menuController.Delete;
-            keyActions[Keys.Up] = () => canvasController.DragSelectedElements(new Point(0, -1));
-            keyActions[Keys.Down] = () => canvasController.DragSelectedElements(new Point(0, 1));
-            keyActions[Keys.Left] = () => canvasController.DragSelectedElements(new Point(-1, 0));
-            keyActions[Keys.Right] = () => canvasController.DragSelectedElements(new Point(1, 0));
+            //keyActions[Keys.Control | Keys.C] = operations.Copy;
+            //keyActions[Keys.Control | Keys.V] = operations.Paste;
+            // keyActions[Keys.Delete] = operations.Delete;
+            //keyActions[Keys.Up] = () => canvasController.DragSelectedElements(new Point(0, -1));
+            //keyActions[Keys.Down] = () => canvasController.DragSelectedElements(new Point(0, 1));
+            //keyActions[Keys.Left] = () => canvasController.DragSelectedElements(new Point(-1, 0));
+            //keyActions[Keys.Right] = () => canvasController.DragSelectedElements(new Point(1, 0));
 
             // codeEditor.AddAssembly(typeof(XDocument));
 
@@ -145,16 +145,16 @@ namespace FlowSharpCode
             }
         }
 
-        private static void OnProcessCmdKeyEvent(object sender, ProcessCmdKeyEventArgs args)
-        {
-            Action act;
+        //private static void OnProcessCmdKeyEvent(object sender, ProcessCmdKeyEventArgs args)
+        //{
+        //    Action act;
 
-            if (canvasController.Canvas.Focused && keyActions.TryGetValue(args.KeyData, out act))
-            {
-                act();
-                args.Handled = true;
-            }
-        }
+        //    if (canvasController.Canvas.Focused && keyActions.TryGetValue(args.KeyData, out act))
+        //    {
+        //        act();
+        //        args.Handled = true;
+        //    }
+        //}
 
         private static void ElementSelected(object controller, ElementEventArgs args)
         {
@@ -168,7 +168,7 @@ namespace FlowSharpCode
                 string code;
                 el.Json.TryGetValue("Code", out code);
 
-                if (el.GetType().Name == "PythonFileBox")
+                if (el.GetType().Name == "PythonFileBox" || el.GetType().Name == "HtmlFileBox")
                 {
                     pythonCodeEditorService.SetText(code ?? String.Empty);
                 }

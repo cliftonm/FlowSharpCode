@@ -15,4 +15,8 @@ namespace FlowSharpCodeShapeInterfaces
     {
         string Filename { get; }
     }
+
+    public interface IWorkflowBox
+    {
+    }
 }
