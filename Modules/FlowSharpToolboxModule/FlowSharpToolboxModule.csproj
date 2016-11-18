@@ -32,7 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Clifton.Core">
-      <HintPath>..\..\..\clifton\Clifton.Core\bin\Debug\Clifton.Core.dll</HintPath>
+      <HintPath>..\..\Libs\Clifton.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FlowSharpLib">
+      <HintPath>..\..\Libs\FlowSharpLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,10 +58,6 @@
     <Compile Include="ToolboxController.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\FlowSharp\FlowSharpLib\FlowSharpLib.csproj">
-      <Project>{07f65ca7-b8d3-4716-bfbf-812ef4da68be}</Project>
-      <Name>FlowSharpLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\FlowSharpServices\FlowSharpServices.csproj">
       <Project>{201553da-39e7-46af-b7d2-5f000362ff98}</Project>
       <Name>FlowSharpServices</Name>

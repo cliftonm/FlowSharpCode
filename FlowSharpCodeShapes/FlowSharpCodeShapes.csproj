@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FlowSharpLib">
+      <HintPath>..\Libs\FlowSharpLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -51,10 +54,6 @@
     <Compile Include="WorkflowBox.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FlowSharp\FlowSharpLib\FlowSharpLib.csproj">
-      <Project>{07f65ca7-b8d3-4716-bfbf-812ef4da68be}</Project>
-      <Name>FlowSharpLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FlowSharpCodeShapeInterfaces\FlowSharpCodeShapeInterfaces.csproj">
       <Project>{8c7d37d1-f9d9-4633-b863-eac44b9dd999}</Project>
       <Name>FlowSharpCodeShapeInterfaces</Name>
