@@ -328,6 +328,7 @@ namespace FlowSharpCode
             parameters.ReferencedAssemblies.Add("System.Core.dll");
             parameters.ReferencedAssemblies.Add("System.Net.dll");
             parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
+            parameters.ReferencedAssemblies.Add("System.Speech.dll");
             parameters.ReferencedAssemblies.Add("System.Xml.dll");
             parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
             parameters.ReferencedAssemblies.Add("Clifton.Core.dll");

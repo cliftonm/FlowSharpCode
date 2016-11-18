@@ -523,6 +523,13 @@ semantic type, which then is published, and the subscriber outputs the text to
 the console window.&nbsp; (It's just a demo of all the cool things that you can 
 do!)&nbsp; As a proof of concept, this shows that FlowSharpCode 
 could be used to implement itself and very well might be in the future.</p>
+<p>As an exercise for the reader, there's a &quot;speak receptor.fsd&quot; component in 
+Article folder.&nbsp; Create a semantic type (use ST_Text as a template) called 
+ST_Speak, import the speak receptor component, add a route for &quot;st_speak&quot;, and run the 
+application with the URL <code>localhost:8001/ST_Speak?text=Hello+World</code>.  You'll have to 
+place the ST_Speak class and the speak receptor in the right assemblies (hint, 
+ungroup the assemblies in order to place shapes so they are contained by the 
+correct assembly shapes.)</p>
 <h2>So What Are Really the Cool Things Here?</h2>
 <p>Here's my short list:</p>
 <ul>
@@ -549,7 +556,7 @@ could be used to implement itself and very well might be in the future.</p>
 <h2>What Will I be Doing Next?</h2>
 <ol>
 	<li>Cleaning up the code</li>
-	<li>Adding multiple document support</li>
+<li>Adding multiple document support</li>
 	<li>Improving usability - one of my top items is collapsing a part of the 
 	diagram to an off-page reference, so these diagrams are manageable.</li>
 </ol>
