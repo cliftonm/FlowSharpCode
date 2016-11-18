@@ -14,16 +14,121 @@
 inspire or cause an eye rolling &quot;what a crazy idea&quot; reaction.&nbsp; It's crazy, 
 in my opinion, but in a sense it's crazy because in my limited use cases so far, 
 it works.&nbsp; And because it's so crazy, the majority of this article will not 
-be written, it'll be <i>drawn.</i></p>
+be written, it'll be <i>diagrams.&nbsp; </i>The problem with this approach is 
+that it ends up sort of looking like a PowerPoint presentation, which is hard to 
+avoid!</p>
 <h3>What Is It?</h3>
 <p><img border="0" src="whatIsIt.png" width="532" height="297"></p>
+<h3>Why?</h3>
+<p><img border="0" src="why.png" width="472" height="227"></p>
 <h3>What Is It Not?</h3>
 <p><img border="0" src="WhatItIsNot.png" width="532" height="297"></p>
 <h3>Example</h3>
 <p><img border="0" src="out2.png" width="659" height="595"></p>
 <h2>Let's Build a Simple Web Server!</h2>
+<h3>Start Anywhere, We'll Start with Main</h3>
 <p><img border="0" src="ws1.png" width="526" height="531"></p>
 <p><img border="0" src="ws2.png" width="602" height="632"></p>
+<p><img border="0" src="out3.png" width="553" height="692"></p>
+<p><img border="0" src="out4.png" width="744" height="846"></p>
+<p><img border="0" src="out5.png" width="779" height="873"></p>
+<p><img border="0" src="out6.png" width="673" height="452"></p>
+<h3>Run It!</h3>
+<p><img border="0" src="out7.png" width="644" height="815"></p>
+<h3>Create a DLL from Your Code Shapes</h3>
+<p><img border="0" src="out8.png" width="1078" height="465"></p>
+<p>Now you when you build the &quot;app&quot;, you have a separate assembly:</p>
+<p><img border="0" src="out9.png" width="158" height="93"></p>
+<h2>Fun With Workflows</h2>
+<p>Let's take this simple piece of code:</p>
+<pre>public static void Main()
+{
+  try
+  {
+    WebServer ws = new WebServer();
+    ws.Start(&quot;localhost&quot;, new int[] {8001});
+    Console.WriteLine(&quot;Press a key to exit the server.&quot;);
+    Console.ReadLine();
+  }
+  catch(Exception ex)
+  {
+    Console.WriteLine(ex.Message);
+    Console.ReadLine();
+  }
+}</pre>
+<h3>Defining a Workflow Packet</h3>
+<p>Back to pictures...</p>
+<p><img border="0" src="wf1.png" width="716" height="286"></p>
+<h3>Creating the Workflow - You Don't Write This</h3>
+<p><img border="0" src="wf2.png" width="713" height="734"></p>
+<h3>But you do Write These</h3>
+<p><img border="0" src="wf3.png" width="475" height="267"></p>
+<p><img border="0" src="wf4.png" width="557" height="234"></p>
+<p><img border="0" src="wf5.png" width="515" height="263"></p>
+<p><img border="0" src="wf6.png" width="370" height="319"></p>
+<h3>And You Change the old Code to This</h3>
+<p><img border="0" src="wf7.png" width="693" height="441"></p>
+<p>Now, that's crazy, cool, a lot of typing (except copy &amp; paste of shapes, 
+which carries along the code, makes it rather painless) and of course has no way 
+of exiting a workflow early.&nbsp; Whatever -- it's a playground, not a rocket 
+ship.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Getting The Code</h2>
+<p>First off, the code base is a bit of a mess, because I've been prototyping 
+these concepts, and you should in no way treat this as a useable tool.&nbsp; 
+It's a playground, that's it!&nbsp; Get the code from GitHub
+<a href="https://github.com/cliftonm/FlowSharpCode">here</a>.&nbsp; The demo 
+files are in:</p>
+<ul>
+	<li>Article\SimpleServer.fsd - the version of the server and app as a single 
+	exe</li>
+	<li>Article\SimpleServerAssy.fsd - the version of the server as a separate 
+	dll</li>
+	<li>Article\SimpleServerWorkflow.fsd - the version of the server implemented 
+	as workflows.</li>
+</ul>
+<h2>Behind the Scenes</h2>
+<p>OK, this is the serious writing part. :)</p>
+<p>First off, this playground is built off of my 
+<a href="http://www.codeproject.com/Articles/1136050/FlowSharp">FlowSharp</a> 
+diagramming tool, so the main thing I'm going to show here is the code for 
+building the exe and dll's, which I want to re-iterate again, is prototype 
+&quot;throw it together&quot; code.&nbsp; Readers may also be interested in that I'm using 
+SharpDevelop's WPF Avalon editor for the C# code, along with Luke Buehler's
+<a href="https://github.com/lukebuehler/NRefactory-Completion-Sample">
+NRefactory-Completion-Sample</a> for the Intellisense functionality and the
+<a href="https://github.com/jacobslusser/ScintillaNET">ScintillaNET</a> editor 
+for other file types other than C#.&nbsp; The whole architecture is based on my 
+modular approach, which is discussed in my &quot;<a href="http://www.codeproject.com/search.aspx?q=The+Clifton+Method&x=0&y=0&sbo=kw">The 
+Clifton Method</a>&quot; articles.&nbsp; Lastly, the docking manager is provided by
+<a href="http://dockpanelsuite.com/">DockPanelSuite</a>, originally written by 
+WeiFen Luo and now maintained on
+<a href="https://github.com/dockpanelsuite/dockpanelsuite">GitHub</a by others.</p>
+<h3>Workflows</h3>
+<p>So far what you've seen is really nothing more than the &quot;trick&quot; of using 
+partial classes to separate methods out into discrete files.&nbsp; That's right, 
+the code you write in the editor for a selected shape is compiled as a discrete 
+file -- it's actually saved as a temporary file, compiled, and then deleted.&nbsp; 
+Building an assembly is really nothing more than figuring out which shapes are 
+contained inside the &quot;Assy&quot; shape and compiling those to an assembly rather than 
+an EXE.&nbsp; We'll use a similar technique for defining workflows, but:</p>
+<ul>
+	<li>This is where you, as the programmer, are first constrained to use a 
+	particular coding pattern,</li>
+	<li>and FlowSharpCode actually generates some code for you.</li>
+</ul>
+<h4>Packets</h4>
+<p>Workflows are packet based -- every workflow step is defined generally as:</p>
+<pre>void DoSomething(WithSomePacket packet) {...}</pre>
+<p>Everything that each workflow step requires or manipulates must be defined in 
+the packet class that you specify.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
