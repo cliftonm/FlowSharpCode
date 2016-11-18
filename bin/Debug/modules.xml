@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Modules>
+  <Module AssemblyName='Clifton.SemanticProcessorService.dll'/>
+  <Module AssemblyName='Clifton.DockingFormService.dll'/>
+  <Module AssemblyName='FlowSharpCanvasModule.dll'/>
+  <Module AssemblyName='FlowSharpToolboxModule.dll'/>
+  <Module AssemblyName='CodeEditorModule.dll'/>
+  <Module AssemblyName='ScintillaModule.dll'/>
+</Modules>
