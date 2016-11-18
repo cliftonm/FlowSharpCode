@@ -23,7 +23,7 @@ avoid!</p>
 <p><img border="0" src="why.png" width="472" height="227"></p>
 <h3>What Is It Not?</h3>
 <p><img border="0" src="WhatItIsNot.png" width="532" height="297"></p>
-<h3>Example</h3>
+<h3>Hello World Example</h3>
 <p><img border="0" src="out2.png" width="659" height="595"></p>
 <h2>Let's Build a Simple Web Server!</h2>
 <h3>Start Anywhere, We'll Start with Main</h3>
@@ -56,27 +56,68 @@ avoid!</p>
     Console.ReadLine();
   }
 }</pre>
+<p>and make it into a workflow.</p>
 <h3>Defining a Workflow Packet</h3>
 <p>Back to pictures...</p>
 <p><img border="0" src="wf1.png" width="716" height="286"></p>
-<h3>Creating the Workflow - You Don't Write This</h3>
+<h3>Creating the Workflow - You Don't Write This Code</h3>
 <p><img border="0" src="wf2.png" width="713" height="734"></p>
 <h3>But you do Write These</h3>
+<p>The first step in the workflow:</p>
 <p><img border="0" src="wf3.png" width="475" height="267"></p>
+<p>The second step in the workflow:</p>
 <p><img border="0" src="wf4.png" width="557" height="234"></p>
+<p>The third step in the workflow:</p>
 <p><img border="0" src="wf5.png" width="515" height="263"></p>
+<p>The last step in the workflow:</p>
 <p><img border="0" src="wf6.png" width="370" height="319"></p>
-<h3>And You Change the old Code to This</h3>
+<h3>And You Change the old Code to This:</h3>
 <p><img border="0" src="wf7.png" width="693" height="441"></p>
 <p>Now, that's crazy, cool, a lot of typing (except copy &amp; paste of shapes, 
 which carries along the code, makes it rather painless) and of course has no way 
 of exiting a workflow early.&nbsp; Whatever -- it's a playground, not a rocket 
 ship.</p>
-<p>&nbsp;</p>
+<h3>And It Runs</h3>
+<p>With all the annotations, etc.</p>
+<p><img border="0" src="wf8.png" width="1232" height="586"></p>
+<p>Now, I could bore you with making workflows out of the other methods in the 
+webserver assembly, but I'll leave that as an exercise for the reader, haha.</p>
+<p>So far what you've seen is really nothing more than the &quot;trick&quot; of using 
+partial classes to separate methods out into discrete files.&nbsp; That's right, 
+the code you write in the editor for a selected shape is compiled as a discrete 
+file -- it's actually saved as a temporary file, compiled, and then deleted.&nbsp; 
+Building an assembly is really nothing more than figuring out which shapes are 
+contained inside the &quot;Assy&quot; shape and compiling those to an assembly rather than 
+an EXE.&nbsp; We'll use a similar technique for defining workflows, but:</p>
+<ul>
+	<li>This is where you, as the programmer, are first constrained to use a 
+	particular coding pattern,</li>
+	<li>and FlowSharpCode actually generates some code for you.</li>
+</ul>
+<p>There are a few constraints:</p>
+<ul>
+	<li>The workflow name must be [packetname]workflow.dll</li>
+<li>The shape text for each workflow step must be the same as the implementing 
+method name -- I use the shape text rather than parsing the C#.&nbsp; Shiver.</li>
+	<li>The auto-generate always creates an <code>Execute</code> method, which is your entry 
+	point to the workflow.</li>
+</ul>
+<p>Technically, the purpose of this tool is to <i>not</i> constrain the 
+programmer into a specific coding pattern, and with proper code parsing, type 
+inference, and other tricks, those constraints could potentially be eased at 
+some point.</p>
+<h3>Make an Assembly for the Workflow</h3>
+<p>Just like before:</p>
+<ol>
+	<li>Contain the workflow in an &quot;Assy&quot; shape</li>
+	<li>Give it a filename (ending with DLL)</li>
+	<li>Fix up the references</li>
+</ol>
+<p><img border="0" src="wf9.png" width="619" height="559"></p>
 <p>&nbsp;</p>
 <h2>Getting The Code</h2>
-<p>First off, the code base is a bit of a mess, because I've been prototyping 
-these concepts, and you should in no way treat this as a useable tool.&nbsp; 
+<p>First off, the code base is a bit of a mess because I've been prototyping 
+these concepts and you should in no way treat this as a useable tool.&nbsp; 
 It's a playground, that's it!&nbsp; Get the code from GitHub
 <a href="https://github.com/cliftonm/FlowSharpCode">here</a>.&nbsp; The demo 
 files are in:</p>
@@ -87,9 +128,11 @@ files are in:</p>
 	dll</li>
 	<li>Article\SimpleServerWorkflow.fsd - the version of the server implemented 
 	as workflows.</li>
+	<li>Article\SimpleServerWorkflowAsAssembly.fsd - the version where the 
+	workflow is also an assembly.</li>
 </ul>
 <h2>Behind the Scenes</h2>
-<p>OK, this is the serious writing part. :)</p>
+<p>OK, this is where the part gets serious. :)</p>
 <p>First off, this playground is built off of my 
 <a href="http://www.codeproject.com/Articles/1136050/FlowSharp">FlowSharp</a> 
 diagramming tool, so the main thing I'm going to show here is the code for 
@@ -104,36 +147,424 @@ modular approach, which is discussed in my &quot;<a href="http://www.codeproject
 Clifton Method</a>&quot; articles.&nbsp; Lastly, the docking manager is provided by
 <a href="http://dockpanelsuite.com/">DockPanelSuite</a>, originally written by 
 WeiFen Luo and now maintained on
-<a href="https://github.com/dockpanelsuite/dockpanelsuite">GitHub</a by others.</p>
-<h3>Workflows</h3>
-<p>So far what you've seen is really nothing more than the &quot;trick&quot; of using 
-partial classes to separate methods out into discrete files.&nbsp; That's right, 
-the code you write in the editor for a selected shape is compiled as a discrete 
-file -- it's actually saved as a temporary file, compiled, and then deleted.&nbsp; 
-Building an assembly is really nothing more than figuring out which shapes are 
-contained inside the &quot;Assy&quot; shape and compiling those to an assembly rather than 
-an EXE.&nbsp; We'll use a similar technique for defining workflows, but:</p>
+<a href="https://github.com/dockpanelsuite/dockpanelsuite">GitHub</a> by others.</p><h3>
+The IDE</h3>
+<p><img border="0" src="ide.png" width="935" height="704"><p>It's fully 
+dockable, but I don't restore your dock settings on startup (yet!)<p>
+<img border="0" src="ide2.png" width="661" height="492"><h3>The Overall 
+Architecture</h3>
+<p>There's a lot of moving parts because I want a highly modular 
+system for developing applications.&nbsp; This is a baby step, but I might as 
+well start out with modular, right?<p>
+<img border="0" src="architecture.png" width="826" height="577"><p>There are 
+five core services:<ol>
+	<li>The WPF Avalon Editor Service, courtesy of SharpDevelop</li>
+	<li>The Scintilla Editor Service</li>
+	<li>The Docking Form Service</li>
+	<li>The FlowSharp Canvas Service</li>
+	<li>The FlowSharp Toolbox Service</li>
+	<li>The Semantic Processor Service</li>
+</ol>
+<p>These are all loaded at runtime.&nbsp; You can read about how:</p>
 <ul>
-	<li>This is where you, as the programmer, are first constrained to use a 
-	particular coding pattern,</li>
-	<li>and FlowSharpCode actually generates some code for you.</li>
+	<li>module load is done in
+	<a href="http://www.codeproject.com/Articles/1120507/The-Clifton-Method-Part-I">
+	The Clifton Method - Part I, Module Manager</a></li>
+	<li>the service manager in
+	<a href="http://www.codeproject.com/Articles/1120517/The-Clifton-Method-Part-II">
+	The Clifton Method - Part II, Service Manager</a></li>
+	<li>bootstrapping in
+	<a href="http://www.codeproject.com/Articles/1120518/The-Clifton-Method-Part-III">
+	The Clifton Method - Part III, Bootstrapping</a></li>
+	<li>the semantic publisher / subscriber, which isn't really used right now, 
+	but will be, in
+	<a href="http://www.codeproject.com/Articles/1120520/The-Clifton-Method-Part-IV">
+	The Clifton Method - Part IV, Semantic Publisher / Subscriber</a></li>
+	</ul>
+	<p>(Yeah, I like to see my name splattered all over an article.)</p>
+	<p>I've provided links elsewhere in this article for the <b>outstanding</b> 
+	components that I'm using, the docking manager, Intellisense, WPF Avalon editor, and ScintillaNet.</p>
+<h3>Code Compilation</h3>
+<p>So, the core value added piece is really the code compilation.&nbsp; It's 
+ugly, it's in MenuController2.cs (great place, right?), so don't forget it's 
+prototype code!</p>
+<p>The top level method is the toaster.&nbsp; It does it all:</p>
+<pre>protected void Compile()
+{
+  tempToTextBoxMap.Clear();
+
+  List&lt;GraphicElement&gt; compiledAssemblies = new List&lt;GraphicElement&gt;();
+  bool ok = CompileAssemblies(compiledAssemblies);
+
+  if (!ok)
+  {
+    DeleteTempFiles();
+    return;
+  }
+
+  List&lt;string&gt; refs = new List&lt;string&gt;();
+  List&lt;string&gt; sources = new List&lt;string&gt;();
+  List&lt;GraphicElement&gt; rootSourceShapes = GetSources();
+  rootSourceShapes.ForEach(root =&gt; GetReferencedAssemblies(root).Where(refassy =&gt; refassy is IAssemblyBox).ForEach(refassy =&gt; refs.Add(((IAssemblyBox)refassy).Filename)));
+
+  // Get code for workflow boxes first, as this code will then be included in the rootSourceShape code listing.
+  IEnumerable&lt;GraphicElement&gt; workflowShapes = canvasController.Elements.Where(el =&gt; el is IWorkflowBox);
+  workflowShapes.ForEach(wf =&gt;
+  {
+    string code = GetWorkflowCode(wf);
+    wf.Json[&quot;Code&quot;] = code;
+  });
+
+  // TODO: Better Linq!
+  rootSourceShapes.Where(root =&gt; !String.IsNullOrEmpty(GetCode(root))).ForEach(root =&gt;
+  {
+    CreateCodeFile(root, sources, GetCode(root));
+  });
+
+  exeFilename = String.IsNullOrEmpty(filename) ? &quot;temp.exe&quot; : Path.GetFileNameWithoutExtension(filename) + &quot;.exe&quot;;
+  Compile(exeFilename, sources, refs, true);
+  DeleteTempFiles();
+}</pre>
+<p>Basically, we:</p>
+<ol>
+	<li>Compile all assemblies first</li>
+	<li>Build the code for the workflows and add them to the source code list</li>
+	<li>Compile the code</li>
+	<li>Output errors in a message box (yuck)</li>
+</ol>
+<p>One nuance I discovered is that in-memory compilation doesn't give you line 
+numbers.&nbsp; Maybe I'm doing something wrong.&nbsp; The workaround is to 
+create temporary files and map those to the shape Text property so I can tell 
+you what shape's code resulted in the error.&nbsp; Like this:</p>
+<pre>protected void CreateCodeFile(GraphicElement root, List&lt;string&gt; sources, string code)
+{
+  string filename = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + &quot;.cs&quot;;
+  tempToTextBoxMap[filename] = root.Text;
+  File.WriteAllText(filename, GetCode(root));
+  sources.Add(filename);
+}</pre>
+<p>We figure out what shapes are assemblies by looking for shapes that implement 
+IAssemblyBox:</p>
+<pre>protected bool CompileAssemblies(List&lt;GraphicElement&gt; compiledAssemblies)
+{
+  bool ok = true;
+
+  foreach (GraphicElement elAssy in canvasController.Elements.Where(el =&gt; el is IAssemblyBox))
+  {
+    CompileAssembly(elAssy, compiledAssemblies);
+  }
+
+  return ok;
+}
+</pre>
+<p>The actual compilation is a recursive process intended to ensure that all 
+referenced assemblies are first compiled:</p>
+<pre>protected string CompileAssembly(GraphicElement elAssy, List&lt;GraphicElement&gt; compiledAssemblies)
+{
+  string assyFilename = ((IAssemblyBox)elAssy).Filename;
+
+  if (!compiledAssemblies.Contains(elAssy))
+  {
+    // Add now, so we don't accidentally recurse infinitely.
+    compiledAssemblies.Add(elAssy);
+
+    List&lt;GraphicElement&gt; referencedAssemblies = GetReferencedAssemblies(elAssy);
+    List&lt;string&gt; refs = new List&lt;string&gt;();
+
+    // Recurse into referenced assemblies that need compiling first.
+    foreach (GraphicElement el in referencedAssemblies)
+    {
+      string refAssy = CompileAssembly(el, compiledAssemblies);
+      refs.Add(refAssy);
+    }
+
+    List&lt;string&gt; sources = GetSources(elAssy);
+    Compile(assyFilename, sources, refs);
+  }
+
+  return assyFilename;
+}</pre>
+<p>Referenced assemblies (given a shape we know is an assembly) is determined 
+again by inspecting any connectors, and in this case, where the arrow is.&nbsp; 
+Don't create connectors pointing the wrong way, or a connector with two arrows, 
+or a connector with no arrows.&nbsp; Remember to chant the mantra &quot;Prototype! 
+Prototype! Prototype!&quot;</p>
+<pre>protected List&lt;GraphicElement&gt; GetReferencedAssemblies(GraphicElement elAssy)
+{
+  List&lt;GraphicElement&gt; refs = new List&lt;GraphicElement&gt;();
+
+  // TODO: Qualify EndConnectedShape as being IAssemblyBox
+  elAssy.Connections.Where(c =&gt; ((Connector)c.ToElement).EndCap == AvailableLineCap.Arrow).ForEach(c =&gt;
+  {
+    // Connector endpoint will reference ourselves, so exclude.
+    if (((Connector)c.ToElement).EndConnectedShape != elAssy)
+    {
+      GraphicElement toAssy = ((Connector)c.ToElement).EndConnectedShape;
+      refs.Add(toAssy);
+    }
+  });
+
+  // TODO: Qualify EndConnectedShape as being IAssemblyBox
+  elAssy.Connections.Where(c =&gt; ((Connector)c.ToElement).StartCap == AvailableLineCap.Arrow).ForEach(c =&gt;
+  {
+    // Connector endpoint will reference ourselves, so exclude.
+    if (((Connector)c.ToElement).StartConnectedShape != elAssy)
+    {
+      GraphicElement toAssy = ((Connector)c.ToElement).StartConnectedShape;
+      refs.Add(toAssy);
+    }
+  });
+
+  return refs;
+}</pre>
+<p>Root level sources (those that aren't IAssemblyBox or IFileBox) is fun little 
+kludge leveraging the knowledge that even grouped shapes are actually 
+represented as top-level elements in the shape list.</p>
+<pre>protected bool ContainedIn&lt;T&gt;(GraphicElement child)
+{
+  return canvasController.Elements.Any(el =&gt; el is T &amp;&amp; el.DisplayRectangle.Contains(child.DisplayRectangle));
+}
+
+protected List&lt;GraphicElement&gt; GetSources()
+{
+  List&lt;GraphicElement&gt; sourceList = new List&lt;GraphicElement&gt;();
+
+  foreach (GraphicElement srcEl in canvasController.Elements.Where(
+  srcEl =&gt; !ContainedIn&lt;IAssemblyBox&gt;(srcEl) &amp;&amp;
+    !(srcEl is IFileBox)))
+  {
+    sourceList.Add(srcEl);
+  }
+
+  return sourceList;
+}</pre>
+<p>Assembly shapes that &quot;group&quot; other code shapes (they're not really groupboxes) 
+are determined like this, given an assembly box shape (or really any other 
+shape, I use this method for figuring out the code in a workflow &quot;group&quot; as 
+well):</p>
+<pre>protected List&lt;string&gt; GetSources(GraphicElement elAssy)
+{
+  List&lt;string&gt; sourceList = new List&lt;string&gt;();
+
+  foreach (GraphicElement srcEl in canvasController.Elements.
+    Where(srcEl =&gt; elAssy.DisplayRectangle.Contains(srcEl.DisplayRectangle)))
+  {
+    string filename = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + &quot;.cs&quot;;
+    tempToTextBoxMap[filename] = srcEl.Text;
+    File.WriteAllText(filename, GetCode(srcEl));
+    sourceList.Add(filename);
+  }
+
+  return sourceList;
+}</pre>
+<p>And the crowning jewel of all this mess is the compilation of the source 
+code (more mess, more hard-coded stuff, fun, fun fun!):</p>
+<pre>protected bool Compile(string assyFilename, List&lt;string&gt; sources, List&lt;string&gt; refs, bool generateExecutable = false)
+{
+  bool ok = false;
+
+  CSharpCodeProvider provider = new CSharpCodeProvider();
+  CompilerParameters parameters = new CompilerParameters();
+
+  parameters.IncludeDebugInformation = true;
+  parameters.GenerateInMemory = false;
+  parameters.GenerateExecutable = generateExecutable;
+
+  parameters.ReferencedAssemblies.Add(&quot;System.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Data.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Data.Linq.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Core.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Net.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Net.Http.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Xml.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;System.Xml.Linq.dll&quot;);
+  parameters.ReferencedAssemblies.Add(&quot;Clifton.Core.dll&quot;);
+  parameters.ReferencedAssemblies.AddRange(refs.ToArray());
+  parameters.OutputAssembly = assyFilename;
+
+  if (generateExecutable)
+  {
+    parameters.MainClass = &quot;App.Program&quot;;
+  }
+
+  results = provider.CompileAssemblyFromFile(parameters, sources.ToArray());
+  ok = !results.Errors.HasErrors;
+
+  if (results.Errors.HasErrors)
+  {
+    StringBuilder sb = new StringBuilder();
+
+    foreach (CompilerError error in results.Errors)
+    {
+      try
+      {
+        sb.AppendLine(String.Format(&quot;Error ({0} - {1}): {2}&quot;, 
+         tempToTextBoxMap[Path.GetFileNameWithoutExtension(error.FileName) + &quot;.cs&quot;], 
+         error.Line, 
+         error.ErrorText));
+      }
+      catch
+      {
+        // other errors, like &quot;process in use&quot;, do not have an associated filename, so general catch-all here.
+        sb.AppendLine(error.ErrorText);
+      }
+    }
+
+    MessageBox.Show(sb.ToString(), assyFilename, MessageBoxButtons.OK, MessageBoxIcon.Error);
+  }
+
+  return ok;
+}</pre>
+<p>Had enough?&nbsp; No, of course not.&nbsp; Let's look at how the workflow 
+code is generated!</p>
+<h3>Workflow Code Generation</h3>
+<p>The other core piece is this.&nbsp; Again ugly, again found in 
+MenuController2.cs.</p>
+<pre>public string GetWorkflowCode(GraphicElement wf)
+{
+  StringBuilder sb = new StringBuilder();
+
+  // TODO: Hardcoded for now for POC.
+  sb.AppendLine(&quot;namespace App&quot;);
+  sb.AppendLine(&quot;{&quot;);
+  sb.AppendLine(&quot;\tpublic partial class &quot; + wf.Text);
+  sb.AppendLine(&quot;\t{&quot;);
+  sb.AppendLine(&quot;\t\tpublic static void Execute(&quot; + 
+    Clifton.Core.ExtensionMethods.ExtensionMethods.LeftOf(wf.Text, &quot;Workflow&quot;) + // Geez.
+    &quot; packet)&quot;);
+  sb.AppendLine(&quot;\t\t{&quot;);
+  sb.AppendLine(&quot;\t\t\t&quot; + wf.Text + &quot; workflow = new &quot; + wf.Text + &quot;();&quot;);
+
+  // Fill in the workflow steps.
+  GraphicElement el = FindStartOfWorkflow(wf);
+
+  while (el != null)
+  {
+    sb.AppendLine(&quot;\t\t\tworkflow.&quot; + el.Text + &quot;(packet);&quot;);
+    el = NextElementInWorkflow(el);
+  }
+
+  sb.AppendLine(&quot;\t\t}&quot;);
+  sb.AppendLine(&quot;\t}&quot;);
+  sb.AppendLine(&quot;}&quot;);
+
+  return sb.ToString();
+}</pre>
+<p>Gotta love the hardcoded namespace and case-sensitive &quot;Workflow&quot; name parsing.</p>
+<p>We find the start of the workflow by identifying the shape that has only a 
+connector's start point attached to it (something I quite glossed over in the ooh, lookatthat part earlier):</p>
+<pre>protected GraphicElement FindStartOfWorkflow(GraphicElement wf)
+{
+  GraphicElement start = null;
+
+  foreach (GraphicElement srcEl in canvasController.Elements.
+    Where(srcEl =&gt; wf.DisplayRectangle.Contains(srcEl.DisplayRectangle)))
+  {
+    if (!srcEl.IsConnector &amp;&amp; srcEl != wf)
+    {
+      // Special case for a 1 step workflow. Untested.
+      if (srcEl.Connections.Count == 0)
+      {
+        start = srcEl;
+        break;
+      }
+
+      // start and end has only one connection.
+      if (srcEl.Connections.Count == 1 &amp;&amp; ((Connection)srcEl.Connections[0]).ToConnectionPoint.Type == FlowSharpLib.GripType.Start)
+      {
+        start = srcEl;
+        break;
+      }
+    }
+  }
+
+  return start;
+}</pre>
+<p>And then next step in the workflow is identified by figuring out to what 
+shape the connector's end point is attached.&nbsp; Now, honestly, I don't know 
+know how robust this code is, and I seriously doubt it <i>is</i> very robust.</p>
+<pre>protected GraphicElement NextElementInWorkflow(GraphicElement el)
+{
+  GraphicElement ret = null;
+
+  if (el.Connections.Count == 1)
+  {
+    if (((Connector)((Connection)el.Connections[0]).ToElement).EndConnectedShape != el)
+    {
+      ret = ((Connector)((Connection)el.Connections[0]).ToElement).EndConnectedShape;
+    }
+  }
+  else if (el.Connections.Count == 2)
+  {
+    if (((Connector)((Connection)el.Connections[0]).ToElement).StartConnectedShape == el)
+    {
+      ret = ((Connector)((Connection)el.Connections[0]).ToElement).EndConnectedShape;
+    }
+    else if (((Connector)((Connection)el.Connections[1]).ToElement).StartConnectedShape == el)
+    {
+      ret = ((Connector)((Connection)el.Connections[1]).ToElement).EndConnectedShape;
+    }
+  }
+
+  return ret;
+}</pre>
+<p>OK, hopefully NOW you've had enough!</p>
+<h2>Want to See Something Even Crazier?</h2>
+<p>This is an example of hosting a semantic web server.&nbsp; </p>
+<p><img border="0" src="st-small.png" width="640" height="413"></p>
+<p>(<a href="st.png">larger image</a>)</p>
+<p>Try it with Article\st_text.fsd.&nbsp; Run the &quot;app&quot;, then in the browser, 
+give it something to output to the console window with, for example, the URL <code>localhost:8001/ST_Text?text=Hello+World</code></p>
+<p>This is a bit like pulling oneself up by the bootstraps, because, you see, 
+what the above &quot;app&quot; is doing is using the module manager, service manager, 
+semantic pub/sub, etc., to runtime load modules that register themselves as 
+semantic subscribers, and the web server parses the route to instantiate the 
+semantic type, which then is published, and the subscriber outputs the text to 
+the console window.&nbsp; (It's just a demo of all the cool things that you can 
+do!)&nbsp; As a proof of concept, this shows that FlowSharpCode 
+could be used to implement itself and very well might be in the future.</p>
+<h2>So What Are Really the Cool Things Here?</h2>
+<p>Here's my short list:</p>
+<ul>
+	<li>It is so ridiculously simple to create an assembly and reference it</li>
+	<li>I'm having lots of fun simply copying a group of shapes (along with 
+	their code) onto another drawing</li>
+	<li>I like the packet workflow approach -- it actually makes code really 
+	simple, modular, and thread safe.&nbsp; Method parameters and return values 
+	are fine, but packetized workflows make things really uniform and trivial to 
+	add or remove workflow steps.&nbsp; Probably not to everyone's liking 
+	though.</li>
+	<li>It is actually quite fun to work this way.&nbsp; The Intellisense is a 
+	bit limited, but I find that I don't miss it.&nbsp; The IDE can stand for <i>
+	tons</i> of improvement, but it's useable as is.&nbsp; </li>
+	<li>I can just imagine the howls of protest if you were to try to introduce 
+	this approach in mainstream development houses (granted, with a more 
+	advanced version than this code.)&nbsp; And I get a sort of sadistic 
+	pleasure in imagining those howls.</li>
+	<li>The idea of mixing code languages, platforms, back-end, front-end, etc., 
+	onto a single surface is quite fun.&nbsp; I had originally thought of doing 
+	a demo of a C# client making REST calls to a Django/Python back-end, and 
+	might do that at some point.</li>
 </ul>
-<h4>Packets</h4>
-<p>Workflows are packet based -- every workflow step is defined generally as:</p>
-<pre>void DoSomething(WithSomePacket packet) {...}</pre>
-<p>Everything that each workflow step requires or manipulates must be defined in 
-the packet class that you specify.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+<h2>What Will I be Doing Next?</h2>
+<ol>
+	<li>Cleaning up the code</li>
+	<li>Adding multiple document support</li>
+	<li>Improving usability - one of my top items is collapsing a part of the 
+	diagram to an off-page reference, so these diagrams are manageable.</li>
+</ol>
+<h2>What do I Want From You?</h2>
+<p>Play!</p>
+<p>Play with the examples, try a few simple things yourself.&nbsp; Just remember the 
+hard-coded constraints the code imposes on you, like the namespace, the <code>Program</code> 
+class name, etc.&nbsp; There's some 
+quirks with FlowSharp that I discovered that I'll be addressing, but mostly I'm 
+interested in what you think of this crazy approach, what you'd like to see, and 
+whether you think this concept is worth pursuing further (I do, so I suppose it 
+doesn't matter what you think, mwahaha!)&nbsp; And use the
+<a href="https://github.com/cliftonm/FlowSharpCode">GitHub Issues</a> for any 
+feedback if possible, otherwise post your feedback here in the comments section 
+and I'll do my best to add it to the project's Issues.</p>
 
 </body>
 
